@@ -3,10 +3,14 @@ from bs4 import BeautifulSoup as soup
 import re
 from nltk.corpus import stopwords
 
+#headers so that genius doesn't return 403
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.3'}
+
 #removes tags in the lyrics 
 def removeTags(text):
   #assumption that square brackets never appear on the actual lyrics
-  return re.sub(r'\[(.*?)\]', '', rawLyrics)
+  return re.sub(r'\[(.*?)\]', '', text)
 
 def wordListToLowercase(wordList):
   wordList = [word.lower() for word in wordList]
@@ -27,41 +31,62 @@ def prettifyRawLyrics(rawLyrics):
   #remove spaces and \n from the ends
   prettier = prettier.strip()
 
-  #replace \n with " " so separate words
+  #replace \n with " " to separate words
   prettier = re.sub('\n+', " ", prettier)
 
   return prettier
 
+def getHTMLSoup(url):
+  req = Request(url=url, headers=headers)
+  uClient = urlopen(req)
 
-#Page URL
-pageUrl = "https://genius.com/Eminem-the-ringer-lyrics"
+  #get HTML
+  pageHtml = uClient.read()
+  #close connection
+  uClient.close()
 
-#headers so that genius doesn't return 403
-headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.3'}
-req = Request(url=pageUrl, headers=headers)
-uClient = urlopen(req)
+  #get soup HTML from genius page
+  page_soup = soup(pageHtml, "html.parser")
 
-pageHtml = uClient.read()
-uClient.close()
-#parse HTML from genius page
-page_soup = soup(pageHtml,"html.parser")
-rawLyrics = page_soup.find("div",class_="lyrics").getText()
+  return page_soup
 
-#prettify raw lyrics
-prettier = prettifyRawLyrics(rawLyrics)
+def getSongLyricDictionary(url):
+  page_soup = getHTMLSoup(url)
+  rawLyrics = page_soup.find("div",class_="lyrics").getText()
 
-#split lyrics to a word list
-wordList = prettier.split(' ')
+  #prettify raw lyrics
+  prettier = prettifyRawLyrics(rawLyrics)
+
+  #split lyrics to a word list
+  wordList = prettier.split(' ')
 
 
-wordList = wordListToLowercase(wordList)
+  wordList = wordListToLowercase(wordList)
 
-filtered_words = removeStopWords(wordList)
+  filtered_words = removeStopWords(wordList)
 
-counts = dict()
-for i in filtered_words:
-  counts[i] = counts.get(i, 0) + 1
+  counts = dict()
+  for i in filtered_words:
+    counts[i] = counts.get(i, 0) + 1
 
-for w in sorted(counts, key=counts.get, reverse=True):
-  print(w, counts[w])
+  return counts
+  
+def getAlbumLyricDictionary(url):
+  page_soup = getHTMLSoup(url)
+  row = page_soup.find_all("a", href=True)
+  songsURLs = []
+  for a in row:
+    if a.find("h3", class_="chart_row-content-title"):
+      songsURLs.append(a["href"])
+  print(songsURLs)
 
+
+albumURL = "https://genius.com/albums/Eminem/Kamikaze"
+getAlbumLyricDictionary(albumURL)
+
+# pageUrl = "https://genius.com/Eminem-the-ringer-lyrics"
+
+# lyricDictionary = getSongLyricDictionary(pageUrl)
+
+# for w in sorted(lyricDictionary, key=lyricDictionary.get, reverse=True):
+#     print(w, lyricDictionary[w])
