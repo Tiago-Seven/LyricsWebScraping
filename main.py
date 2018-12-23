@@ -50,6 +50,14 @@ def getHTMLSoup(url):
 
   return page_soup
 
+def addDictionaries(dict1, dict2):
+  for word in dict2:
+    if word in dict1:
+      dict1[word] += dict2[word]
+    else:
+      dict1[word] = dict2[word]
+  return dict1
+
 def getSongLyricDictionary(url):
   page_soup = getHTMLSoup(url)
   rawLyrics = page_soup.find("div",class_="lyrics").getText()
@@ -59,10 +67,7 @@ def getSongLyricDictionary(url):
 
   #split lyrics to a word list
   wordList = prettier.split(' ')
-
-
   wordList = wordListToLowercase(wordList)
-
   filtered_words = removeStopWords(wordList)
 
   counts = dict()
@@ -75,18 +80,38 @@ def getAlbumLyricDictionary(url):
   page_soup = getHTMLSoup(url)
   row = page_soup.find_all("a", href=True)
   songsURLs = []
+
+  counts = dict()
   for a in row:
     if a.find("h3", class_="chart_row-content-title"):
       songsURLs.append(a["href"])
-  print(songsURLs)
+  i = 0
+  for songULR in songsURLs:
+    print(songULR)
+    songDict = getSongLyricDictionary(songULR)
+    print("adding...")
+    counts = addDictionaries(counts, songDict)
+  return counts
 
 
 albumURL = "https://genius.com/albums/Eminem/Kamikaze"
-getAlbumLyricDictionary(albumURL)
+lyricDictionary = getAlbumLyricDictionary(albumURL)
+i = 0
+for w in sorted(lyricDictionary, key=lyricDictionary.get, reverse=True):
+  if(i < 50):
+    print(w, lyricDictionary[w])
+  i += 1
 
+# dict1 = {"a":1,"b":2,"c":2}
+# dict2 = {"a":1,"c":2,"d":3}
+# print(addDictionaries(dict1,dict2))
 # pageUrl = "https://genius.com/Eminem-the-ringer-lyrics"
 
 # lyricDictionary = getSongLyricDictionary(pageUrl)
 
-# for w in sorted(lyricDictionary, key=lyricDictionary.get, reverse=True):
-#     print(w, lyricDictionary[w])
+
+#TODO number of words/ number of unique words
+
+#TODO try to add unit tests... 
+#addDictionaries
+#prettifyRawLyrics
