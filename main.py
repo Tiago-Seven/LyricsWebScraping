@@ -85,7 +85,6 @@ def getAlbumLyricDictionary(url):
   for a in row:
     if a.find("h3", class_="chart_row-content-title"):
       songsURLs.append(a["href"])
-  i = 0
   for songULR in songsURLs:
     print(songULR)
     songDict = getSongLyricDictionary(songULR)
