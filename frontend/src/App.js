@@ -1,19 +1,22 @@
-import React, { Component } from 'react';
-import './App.css';
-import Loading from './components/Loading';
-
+import React, { Component } from "react";
+import "./App.css";
+import Loading from "./components/Loading";
+import NavBar from "./components/NavBar";
+import SearchBar from "./components/SearchBar";
 
 const AppContext = React.createContext();
 export const AppProvider = AppContext.Provider;
 export const AppConsumer = AppContext.Consumer;
 
 class App extends Component {
-  
   render() {
-    return <React.Fragment>
-        <h1>Manel</h1>
-        <Loading></Loading>
-      </React.Fragment>;
+    return (
+      <React.Fragment>
+        <NavBar />
+        <Loading />
+        <SearchBar/>
+      </React.Fragment>
+    );
   }
 }
 
