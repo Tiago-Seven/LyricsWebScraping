@@ -1,2 +1,15 @@
 # LyricsWebScraping
 Trying to web scrape lyrics of Genius.com
+
+## How to run
+### Backend Python Server(Command Line Windows)
+  * set FLASK_APP=hello.py
+  * python -m flask run
+
+  Check [flask documentation](http://flask.pocoo.org/docs/1.0/quickstart/) for other environment
+
+### Frontend server
+ #### NPM Server
+ * cd frontend
+ * npm install  
+ * npm start
