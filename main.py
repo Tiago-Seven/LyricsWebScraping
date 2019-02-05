@@ -71,9 +71,10 @@ def addDictionaries(dict1, dict2):
     return dict1
 
 
-def getSongLyricDictionary(url):
+def getMusicLyricDictionary(url):
     page_soup = getHTMLSoup(url)
     rawLyrics = page_soup.find("div", class_="lyrics").getText()
+    musicTitle = page_soup.find("h1").getText()
 
     # prettify raw lyrics
     prettier = prettifyRawLyrics(rawLyrics)
@@ -82,34 +83,41 @@ def getSongLyricDictionary(url):
     wordList = prettier.split(' ')
     wordList = wordListToLowercase(wordList)
     filtered_words = removeStopWords(wordList)
-
+ 
     counts = dict()
     for i in filtered_words:
         counts[i] = counts.get(i, 0) + 1
 
-    return counts
+    musicStats = dict()
+    musicStats["numberOfWords"] = len(filtered_words)
+    musicStats["numberOfUniqueWords"] = len(counts)
+    musicStats["wordFrequency"] = counts
+    musicStats["musicTitle"] = musicTitle
+
+    return musicStats
 
 
 def getAlbumLyricDictionary(url):
     page_soup = getHTMLSoup(url)
     row = page_soup.find_all("a", href=True)
-    songsURLs = []
+    musicsURLs = []
 
     counts = dict()
     for a in row:
         if a.find("h3", class_="chart_row-content-title"):
-            songsURLs.append(a["href"])
-    for songULR in songsURLs:
-        print(songULR)
-        songDict = getSongLyricDictionary(songULR)
+            musicsURLs.append(a["href"])
+    for musicULR in musicsURLs:
+        print(musicULR)
+        musicDict = getMusicLyricDictionary(musicULR)
         print("adding...")
-        counts = addDictionaries(counts, songDict)
+        counts = addDictionaries(counts, musicDict)
     return counts
 
 
 def makeMusicUrl(artistName, musicName):
     # replace spaces with "-"
     musicUrl = re.sub(" ", "-", musicName)
+    artistName = re.sub(" ", "-", artistName)
 
     # add artist
     musicUrl = artistName+"-"+musicUrl
@@ -122,13 +130,29 @@ def makeMusicUrl(artistName, musicName):
     return musicUrl
 
 
+def makeAlbumUrl(artistName, albumName):
+    # replace spaces with "-"
+    albumUrl = re.sub(" ", "-", albumName)
+
+    # add artist
+    albumUrl = artistName+"/"+albumUrl
+
+    # add lyrics to url
+    albumUrl = "albums/"+ albumUrl
+
+    # add domain
+    albumUrl = domain + albumUrl
+    return albumUrl
+
 app = Flask(__name__)
 
-
-@app.route('/album/<string:albumName>')
-def albumStatsRoute(albumName):
+#/album?artist=<artist>&album=<music>
+@app.route('/album')
+def albumStatsRoute():
+    artistName = flaskRequest.args.get('artist', type=str)
     albumName = flaskRequest.args.get('album', type=str)
-    lyricDictionary = getAlbumLyricDictionary(albumName)
+    albumUrl = makeAlbumUrl(artistName, albumName)
+    lyricDictionary = getAlbumLyricDictionary(albumUrl)
     return jsonify(lyricDictionary)
 
 #/music?artist=<artist>&music=<music>
@@ -137,8 +161,7 @@ def musicStatsRoute():
     artistName = flaskRequest.args.get('artist', type = str)
     musicName = flaskRequest.args.get('music', type = str)
     musicUrl = makeMusicUrl(artistName, musicName)
-    print(musicUrl)
-    lyricDictionary = getSongLyricDictionary(musicUrl)
+    lyricDictionary = getMusicLyricDictionary(musicUrl)
     return jsonify(lyricDictionary)
 
 # albumURL = "https://genius.com/albums/Eminem/Kamikaze"
@@ -150,7 +173,7 @@ def musicStatsRoute():
 #     i += 1
 
 # pageUrl = "https://genius.com/Eminem-the-ringer-lyrics"
-# lyricDictionary = getSongLyricDictionary(pageUrl)
+# lyricDictionary = getmusicLyricDictionary(pageUrl)
 
 
 # TODO number of words/ number of unique words
