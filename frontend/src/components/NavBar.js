@@ -33,15 +33,15 @@ export default class NavBar extends Component {
   render() {
     return (
       <React.Fragment>
-        <Navbar color="dark" dark fixed="top" expand="md">
+        <Navbar color="dark" dark expand="md" className="sticky-nav">
           <NavbarBrand className="text-white">Lyrics Stats</NavbarBrand>
           <NavbarToggler onClick={this.toggle} />
           <Collapse isOpen={this.state.isOpen} navbar>
             <Nav className="ml-auto" navbar>
               <NavItem>
                 <NavLink>
-                  <a href="https://github.com/pigaoMIEIC/LyricsWebScraping">
-                    <img src={require("../GitHub-Mark-Light-32px.png")} />
+                  <a href="https://github.com/pigaoMIEIC/LyricsWebScraping" >
+                    <img alt="Git-Hub Mark" src={require("../GitHub-Mark-Light-32px.png")} />
                   </a>
                 </NavLink>
               </NavItem>

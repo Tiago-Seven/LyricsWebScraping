@@ -102,7 +102,20 @@ def getAlbumLyricDictionary(url):
     row = page_soup.find_all("a", href=True)
     musicsURLs = []
 
-    counts = dict()
+    #main dictionary
+    albumStats = dict()
+
+    #dictionary with the totals of the musics on the album
+    albumTotals = dict()
+    albumTotals["numberOfUniqueWords"] = 0
+    albumTotals["numberOfWords"] = 0
+
+    #dictionary with the frequency of all the words of all the musics in the album
+    totalWordFrequency = dict()
+
+    #dictionary with the stats and info of the musics in the album
+    albumMusics = dict()
+    
     for a in row:
         if a.find("h3", class_="chart_row-content-title"):
             musicsURLs.append(a["href"])
@@ -110,8 +123,17 @@ def getAlbumLyricDictionary(url):
         print(musicULR)
         musicDict = getMusicLyricDictionary(musicULR)
         print("adding...")
-        counts = addDictionaries(counts, musicDict)
-    return counts
+        
+        albumMusics[musicDict["musicTitle"]] = musicDict
+        
+        albumTotals["numberOfUniqueWords"] += musicDict["numberOfUniqueWords"]
+        albumTotals["numberOfWords"] += musicDict["numberOfWords"]
+        totalWordFrequency = addDictionaries(totalWordFrequency, musicDict["wordFrequency"])
+    
+    albumTotals["wordFrequency"] = totalWordFrequency
+    albumStats["totals"] = albumTotals
+    albumStats["musics"] = albumMusics
+    return albumStats
 
 
 def makeMusicUrl(artistName, musicName):

@@ -15,22 +15,15 @@ export default class SearchBar extends Component {
 
   render() {
     return (
-      <div className="container">
-        <form onSubmit={this.handleSubmit}>
-          <div class="form-group">
-            <label for="exampleInputEmail1">Search for an album</label>
-            <input
-              class="form-control form-control-lg"
-              type="text"
-              class="form-control"
-              placeholder="Search"
-            />
-          </div>
-          <button type="submit" class="btn btn-primary">
-            Search
-          </button>
-        </form>
-      </div>
+      <React.Fragment>
+        <label for="exampleInputEmail1">{this.props.label}</label>
+        <input
+          class="form-control form-control-lg"
+          type="text"
+          className="form-control"
+          placeholder="Search"
+        />
+      </React.Fragment>
     );
   }
 }

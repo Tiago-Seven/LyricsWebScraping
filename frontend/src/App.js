@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import "./App.css";
-import Loading from "./components/Loading";
 import NavBar from "./components/NavBar";
-import SearchBar from "./components/SearchBar";
+import SearchMusic from "./components/SearchMusic";
+import SearchAlbum from "./components/SearchAlbum"
 
 const AppContext = React.createContext();
 export const AppProvider = AppContext.Provider;
@@ -12,9 +12,10 @@ class App extends Component {
   render() {
     return (
       <React.Fragment>
-        <NavBar />
-        <Loading />
-        <SearchBar/>
+        <NavBar/>
+        <h1 className="text-center">Get Stats for your favorite musics and albums</h1>
+        <SearchMusic/>
+        <SearchAlbum/>
       </React.Fragment>
     );
   }
