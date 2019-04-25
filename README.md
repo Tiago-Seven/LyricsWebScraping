@@ -1,5 +1,5 @@
 # LyricsWebScraping
-Trying to web scrape lyrics of Genius.com
+Trying to web scrape lyrics of [Genius.com](https://genius.com/) using python
 
 ## How to run
 ### Backend Python Server(Command Line Windows)
@@ -13,3 +13,6 @@ Trying to web scrape lyrics of Genius.com
  * cd frontend
  * npm install  
  * npm start
+
+TODO:
+* Work on React Frontend
