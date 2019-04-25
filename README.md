@@ -1,5 +1,5 @@
 # LyricsWebScraping
-Trying to web scrape lyrics of [Genius.com](https://genius.com/) using python
+Web scraping lyrics of [Genius.com](https://genius.com/) using python
 
 ## How to run
 ### Backend Python Server(Command Line Windows)
