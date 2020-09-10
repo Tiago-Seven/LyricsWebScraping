@@ -1,31 +1,35 @@
+import requests
 from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup as soup
 import re
 from nltk.corpus import stopwords
+import time
 
 from flask import Flask, request as flaskRequest, jsonify
 
-domain = "https://genius.com/"
-# headers so that genius doesn't return 403
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.3'}
+#remove proxies, genius doesn't like proxies
+proxies = {
+    "http": None,
+    "https": None,
+}
 
-# removes tags in the lyrics
+domain = "https://genius.com/"
+
 
 
 def removeTags(text):
+    '''Removes tags in the lyrics '''
     # assumption that square brackets never appear on the actual lyrics
     return re.sub(r'\[(.*?)\]', '', text)
+
 
 
 def wordListToLowercase(wordList):
     wordList = [word.lower() for word in wordList]
     return wordList
 
-# removes common stop words using nltk https://www.nltk.org/
-
-
 def removeStopWords(wordList):
+    '''Removes common stop words using nltk https://www.nltk.org/'''
     wordList = [
         word for word in wordList if word not in stopwords.words('english')]
     return wordList
@@ -48,17 +52,10 @@ def prettifyRawLyrics(rawLyrics):
 
 
 def getHTMLSoup(url):
-    req = Request(url=url, headers=headers)
-    uClient = urlopen(req)
-
-    # get HTML
-    pageHtml = uClient.read()
-    # close connection
-    uClient.close()
+    r = requests.get(url, proxies=proxies)
 
     # get soup HTML from genius page
-    page_soup = soup(pageHtml, "html.parser")
-
+    page_soup = soup(r.content, 'html.parser')
     return page_soup
 
 
@@ -101,7 +98,7 @@ def getAlbumLyricDictionary(url):
     page_soup = getHTMLSoup(url)
     row = page_soup.find_all("a", href=True)
     musicsURLs = []
-
+    musicsNames = []
     #main dictionary
     albumStats = dict()
 
@@ -115,15 +112,34 @@ def getAlbumLyricDictionary(url):
 
     #dictionary with the stats and info of the musics in the album
     albumMusics = dict()
-    
+    albumMusics["error_musics"] = []
     for a in row:
-        if a.find("h3", class_="chart_row-content-title"):
+        h3_inside_a = a.find("h3", class_="chart_row-content-title")
+        if h3_inside_a:
+            musicsNames.append(h3_inside_a.contents[0])
             musicsURLs.append(a["href"])
-    for musicULR in musicsURLs:
-        print(musicULR)
-        musicDict = getMusicLyricDictionary(musicULR)
-        print("adding...")
+
+    for i, musicULR in enumerate(musicsURLs):
+        waiting_time = 5 #seconds
+        waiting_turns = 0
+        done = False
+        max_waiting_time = 320
+        while not done and waiting_time <= max_waiting_time:
+            try:
+                print(musicULR)
+                print("waiting {} seconds".format(waiting_time))
+                time.sleep(waiting_time)
+                print("doing")
+                musicDict = getMusicLyricDictionary(musicULR)
+                print("adding...")
+                done = True
+            except AttributeError:
+                waiting_time = waiting_time * 2
         
+        if waiting_time > max_waiting_time:
+            albumMusics["error_musics"].append(musicsNames[i])
+            continue
+
         albumMusics[musicDict["musicTitle"]] = musicDict
         
         albumTotals["numberOfUniqueWords"] += musicDict["numberOfUniqueWords"]
@@ -168,6 +184,7 @@ def makeAlbumUrl(artistName, albumName):
 
 app = Flask(__name__)
 
+##### API available routes
 #/album?artist=<artist>&album=<music>
 @app.route('/album')
 def albumStatsRoute():
