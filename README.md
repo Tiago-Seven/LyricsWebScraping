@@ -1,6 +1,16 @@
 # LyricsWebScraping
 Web scraping lyrics of [Genius.com](https://genius.com/) using python
 
+## Requirements
+
+The following are a list of the requirements needed to run the project:
+* Python 3.5.6
+* Flask
+* NLTK
+* Requests 2.24.0
+* Beautiful Soup 4.6.3
+
+
 ## How to run
 ### Backend Python Server(Command Line Windows)
   * set FLASK_APP=main.py
