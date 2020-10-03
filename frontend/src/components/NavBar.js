@@ -39,11 +39,23 @@ export default class NavBar extends Component {
           <Collapse isOpen={this.state.isOpen} navbar>
             <Nav className="ml-auto" navbar>
               <NavItem>
+                <NavLink href="/"> Home </NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink href="/music"> Search Music </NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink href="/album"> Search Album </NavLink>
+              </NavItem>
+              <NavItem>
                 <NavLink>
                   <a href="https://github.com/pigaoMIEIC/LyricsWebScraping" >
                     <img alt="Git-Hub Mark" src={require("../GitHub-Mark-Light-32px.png")} />
                   </a>
                 </NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink href="/about"> About </NavLink>
               </NavItem>
             </Nav>
           </Collapse>

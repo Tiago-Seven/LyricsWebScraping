@@ -11,13 +11,16 @@ export default class SearchMusic extends Component {
 
   handleSubmit(event) {
     console.log("tou no handle submit no search music")
-    console.log(event);
     event.preventDefault();
-    
-    let response = fetch("http://127.0.0.1:5000/music?artist=eminem&music=kamikaze", {
-      mode: "no-cors"})
-    response = response.json()
-    console.log(response);
+
+    fetch(`/music?artist=${this.state.Artist}&music=${this.state.Music}`, { mode: "no-cors" }).then(res => {
+      console.log(res);
+      // your code
+    })
+    this.props.history.push('/about');
+    //console.log(response)
+    //response = response.json()
+    //console.log(response);
     
   }
 
